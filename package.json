@@ -1,0 +1,13 @@
+{	
+	"name" : "Filewatcher",
+	"description": "Watches files in directory and runs command if file is changed",
+  	"version": "0.0.1",
+    "dependencies"  : 
+    {
+  		"chokidar"  : "0.8.2", 
+  		"cli-color" : "0.2.3", 
+  		"nomnom"    : "1.6.2"
+    }
+}
+
+

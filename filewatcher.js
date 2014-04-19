@@ -1,66 +1,108 @@
-var chokidar = require('chokidar');
-var cp       = require('child_process'); 
+var chokidar 		= require('chokidar');
+var cp       		= require('child_process'); 
+var clc             = require('cli-color');
+var parser          = require('nomnom');
+var processing      = 0;
+var reload_progress = 0;
+var reload_queued   = 0;
 
-var projectDir = '/Users/slawomirdemichowicz/aop/aop-aux/';
+var error  = clc.red.bold;
+var warn   = clc.yellow;
+var notice = clc.blueBright;
+var info   = clc.greenBright;
+
+var events = ['add', 'addDir', 'change', 'unlink', 'unlinkDir', 'error'];
 
 var watcher = chokidar.watch('file or dir', {
-	ignored: /^\./, 
+	ignored: /[\/\\]\./,
 	persistent: true
 });
 
-var reloading = 0;
-var reload_progress = 0; 
-var reload_queued = 0; 
-
-var consoleLog = function(data){
-	reload_progress += Math.ceil(100/20);
-	if(reload_progress > 100) reload_progress = 100;
-	process.stdout.write('\rPackaging JavaScripts: ' + reload_progress + '%');
+var __d = function(o){
+  if (options.debug) console.log(o);
 };
 
-var package_js = function(fileName){
-		if(reloading){
-			reload_queued++;
-			console.log('File ' + fileName + ' is queued for processing.');
+var __log = function(buffer){
+  process.stdout.write(buffer.toString('utf8'));
+}
 
-			return;
-		}; 
 
-		reloading++; 
+var logEvent = function(message){
+  return function(path, stat){
+    console.log([notice(new Date().toISOString()), notice(['[', message, ']'].join('')), info(path)].join(' '));
+  }
+};
 
-		var mvn = cp.spawn('mvn', ['javascript:war-package'], {
-			cwd: projectDir, 			
-		}); 
+var run = function(path){
+  
+  var comm = cp.spawn(options.command, options.args.split(' '), {
+    cwd: options['work-dir'],
+  }); 
 
-		mvn.stdout.on('data', consoleLog);
-		mvn.stderr.on('data', consoleLog);
 
-		mvn.on('close', function (error) {
-			if(!error){
-				process.stdout.write('\rPackaging JavasSripts: ' + 100 + '%' + ' done!\n');
-			} else {
-				process.stderr.write("| ERROR " + error + "|");
-			}
 
-			reloading--;
-			reload_progress = 0; 
+  comm.stdout.on('data', __log);
+  comm.stderr.on('data', __log);
 
-			if(reload_queued){
-				reload_queued = 0; 
-				package_js();
-			}
-		});
-	}
+  comm.on('close', function (err) {
+    if(!err){
+      console.log(info('-- processed --'));
+    } else {
+      console.log(error(['-- ERROR --', err].join(' ')));
+    }
+  });
+};
 
-watcher
-  	.on('add', function(path) {console.log(new Date(), 'File', path, 'is being monitored.');})
-  	.on('change', function(path) {console.log(new Date(), 'File', path, 'has been changed');})
-  	.on('unlink', function(path) {console.log(new Date(), 'File', path, 'has been removed');})
-  	.on('error', function(error) {console.error(new Date(), 'Error happened', error);})
+parser
+  .script('filewatcher')
+  .options({
+    'watch-dir': {
+      help: 'Directory to watch. Can be specified multiple times. Defaults to current directory.',
+      list: true
+    },
+    'work-dir': {
+      help: 'Directory command should be run in. Defaults to --watch-dir.'
+    },
+    command: {
+      abbr: 'c',
+      required: true,
+      position: 0,
+      help: 'command to run'
+    },
+    args: {
+      abbr: 'a', 
+      help: 'Arguments that will be passed to command.'
+    },
+    debug: {
+      abbr: 'd',
+      flag: true,
+      help: 'Prints debugging info'
+    }
+  });
 
-watcher.on('change', package_js);
-watcher.on('add', package_js);
-watcher.on('unlink', package_js);
+var options = parser.parse();
 
-watcher.add(projectDir + 'src/main/javascript');
-watcher.close();
+options['watch-dir'] = options['watch-dir'] || process.cwd();
+options['work-dir']  = options['work-dir'] || options['watch-dir'];
+
+__d(options);
+
+events.forEach(function(event){
+  watcher.on(event, logEvent(event));
+});
+
+watcher.on('change', run);
+
+console.log(info('filewatcher v 0.0.1'));
+
+watcher.add(options['watch-dir']);
+
+
+
+process.on('SIGINT', function(code) {
+	watcher.close();
+	console.log(error('-- terminated --'));
+	process.exit();
+});
+
+
