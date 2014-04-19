@@ -1,5 +1,7 @@
-Automatic javascript task runner
-=====================================
+Directory monitor and task runner
+=================================
+
+Fires given command on working dir if file changed in watched directory.
 
 0. Prerequisites. 
 
