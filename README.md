@@ -9,7 +9,7 @@ Prerequisites:
 
 If you have a need/reason to use this script: 
 
-1. Run npm install (it will pick project.package and install dependencies).
+1. Run ```npm install``` (it will pick project.package and install dependencies).
 
 2. Run filewatcher: 
 
