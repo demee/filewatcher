@@ -11,6 +11,8 @@ var warn   = clc.yellow;
 var notice = clc.blueBright;
 var info   = clc.greenBright;
 
+var process_running = 0; 
+
 var events = ['add', 'addDir', 'change', 'unlink', 'unlinkDir', 'error'];
 
 var watcher = chokidar.watch('file or dir', {
@@ -34,6 +36,12 @@ var logEvent = function(message){
 };
 
 var run = function(path){
+
+  if(process_running) {
+    return;
+  }
+
+  process_running++;
   
   var comm = cp.spawn(options.command, options.args.split(' '), {
     cwd: options['work-dir'],
@@ -50,6 +58,7 @@ var run = function(path){
     } else {
       console.log(error(['-- ERROR --', err].join(' ')));
     }
+    process_running--;
   });
 };
 
@@ -83,7 +92,8 @@ parser
 var options = parser.parse();
 
 options['watch-dir'] = options['watch-dir'] || process.cwd();
-options['work-dir']  = options['work-dir'] || options['watch-dir'];
+options['work-dir']  = options['work-dir']  || options['watch-dir'];
+options['args']      = options['args']      || '';
 
 __d(options);
 
