@@ -3,16 +3,22 @@ Directory monitor and task runner
 
 Fires given command on working dir if file changed in watched directory.
 
-0. Prerequisites. 
+Prerequisites:
 
-Need to have nodejs installed: http://www.nodejs.org
+1. Need to have nodejs installed: http://www.nodejs.org
 
-1. Have a need/reason to use this script 
+If you have a need/reason to use this script: 
 
-2. Run npm instll (it will pick project.package and install dependencies)
+1. Run npm install (it will pick project.package and install dependencies).
 
-3. Run filewatcher. 
+2. Run filewatcher: 
 
+```bash
 node filewatcher.js command --watch-dir ~/where/are/my/files/  --work-dir ~/where/to/work
+```
 
-4. node filewatcher.js --help prints help. 
+If in doubt:
+
+```bash
+node filewatcher.js --help
+```
