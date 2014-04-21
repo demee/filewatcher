@@ -1,5 +1,5 @@
-var chokidar 		= require('chokidar');
-var cp       		= require('child_process'); 
+var chokidar 	      = require('chokidar');
+var cp              = require('child_process'); 
 var clc             = require('cli-color');
 var parser          = require('nomnom');
 var processing      = 0;
@@ -28,7 +28,6 @@ var __log = function(buffer){
   process.stdout.write(buffer.toString('utf8'));
 }
 
-
 var logEvent = function(message){
   return function(path, stat){
     console.log([notice(new Date().toISOString()), notice(['[', message, ']'].join('')), info(path)].join(' '));
@@ -46,8 +45,6 @@ var run = function(path){
   var comm = cp.spawn(options.command, options.args.split(' '), {
     cwd: options['work-dir'],
   }); 
-
-
 
   comm.stdout.on('data', __log);
   comm.stderr.on('data', __log);
@@ -106,8 +103,6 @@ watcher.on('change', run);
 console.log(info('filewatcher v 0.0.1'));
 
 watcher.add(options['watch-dir']);
-
-
 
 process.on('SIGINT', function(code) {
 	watcher.close();
