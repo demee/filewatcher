@@ -1,16 +1,24 @@
-Automatic javascript task runner
-=====================================
+Directory monitor and task runner
+=================================
 
-0. Prerequisites. 
+Fires given command on working dir if file changed in watched directory.
 
-Need to have nodejs installed: http://www.nodejs.org
+Prerequisites:
 
-1. Have a need/reason to use this script 
+1. Need to have nodejs installed: http://www.nodejs.org
 
-2. Run npm instll (it will pick project.package and install dependencies)
+If you have a need/reason to use this script: 
 
-3. Run filewatcher. 
+1. Run ```npm install``` (it will pick project.package and install dependencies).
 
+2. Run filewatcher: 
+
+```bash
 node filewatcher.js command --watch-dir ~/where/are/my/files/  --work-dir ~/where/to/work
+```
 
-4. node filewatcher.js --help prints help. 
+If in doubt:
+
+```bash
+node filewatcher.js --help
+```
